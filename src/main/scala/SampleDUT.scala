@@ -1,12 +1,13 @@
 import scala.collection.mutable.LinkedHashMap
 import Chisel._
-import Chisel.hwiotesters._
+import firrtl.interpreter._
 
 class innerBundle extends Bundle {
   val c = UInt(INPUT, width=8)
   val d = UInt(OUTPUT, width=8)
 }
 
+/*
 class SampleDUT extends Module {
   val io = new Bundle {
     val in = UInt(INPUT, width=65)
@@ -29,7 +30,52 @@ class SampleDUT extends Module {
 
   io.test_vec_inner(0).d := io.test_vec_inner(0).c
 }
+*/
 
+class SampleDUT extends Module {
+  val io = new Bundle {
+    val in = UInt(INPUT, width=65)
+    val out = UInt(OUTPUT, width=65)
+    val delayed_out = UInt(OUTPUT, width=65)
+  }
+  io.out := io.in
+  val delayed_in = Reg(init=UInt(0))
+  delayed_in := io.in
+  io.delayed_out := delayed_in
+}
+
+class SampleDUTTester(c: () => SampleDUT) {
+  val firrtlIR = Chisel.Driver.emit(c)
+  val x = new AdvInterpretiveTester(firrtlIR) {
+    poke("io_in", 34)
+    println("DEBUG0")
+    println(firrtlIR)
+    println("DEBUG1")
+    //step(1)
+    update()
+    println(peek("io_out"))
+    println("DEBUG2")
+    update()
+    println(peek("io_out"))
+    println(peek("io_delayed_out"))
+    println("DEBUG3")
+    poke("io_in", 34)
+    step(1)
+    println(peek("io_out"))
+    println(peek("io_delayed_out"))
+    expect("io_out", 34)
+/*
+    poke("io_e", 0)
+    step(1)
+
+    while (peek("io_v") != Big1) {
+      step(1)
+    }
+    expect("io_z", 17)
+    */
+  }
+}
+/*
 class SampleDUTTester(c: SampleDUT) extends ClassicTester(c) {
   poke(c.io.in, BigInt("10000000000000000", 16))
   peek(c.io.out)
@@ -50,21 +96,5 @@ class SampleDUTTester(c: SampleDUT) extends ClassicTester(c) {
 
   poke(c.io.test_vec_inner(0).c, 10)
   peek(c.io.test_vec_inner(0).d)
-}
-
-/*
-object StandaloneCPPDriver {
-  def main(args: Array[String]) = {
-    val tester = new CppEmulatorInterface("./src/main/resources/Hello", LinkedHashMap("Hello__io_in" -> 1), LinkedHashMap("Hello__io_out" -> 1), 0)
-    tester.start
-    tester.poke("Hello__io_in", 1)
-    tester.step(1)
-    println(tester.peek("Hello__io_out"))
-    tester.poke("Hello__io_in", 2)
-    tester.step(1)
-    println(tester.peek("Hello__io_out"))
-    tester.finish
-    println("done")
-  }
 }
 */

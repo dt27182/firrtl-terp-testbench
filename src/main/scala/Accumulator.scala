@@ -1,5 +1,5 @@
 import Chisel._
-import Chisel.hwiotesters._
+import Chisel.hwiotesters.AdvInterpretiveTester
 
 class Accumulator extends Module {
   val io = new Bundle {
@@ -11,7 +11,7 @@ class Accumulator extends Module {
   io.out := accumulator
 }
 
-class AccumulatorTests(c: Accumulator) extends ClassicTester(c) {
+class AccumulatorTests(c: Accumulator, dutGenFunc: () => Accumulator) extends AdvInterpretiveTester(dutGenFunc) {
   var tot = 0
   for (t <- 0 until 16) {
     val in = rnd.nextInt(2)

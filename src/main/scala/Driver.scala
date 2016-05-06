@@ -23,8 +23,11 @@ object genFirrtlIRString {
   }
 }
 object Driver extends App {
-  new SampleDUTTester(Chisel.Driver.elaborateModule(() => new SampleDUT()), () => new SampleDUT())
-  //new LFSR16Tests(() => new LFSR16())
-  //println(genFirrtlIRString(() => new SampleDUT(), "SampleDUT"))
-  //runClassicTester(() => new SampleDUT(), verilogFilePath) {c => new SampleDUTTester(c)}
+  //successful tests
+  //new SampleDUTTester(Chisel.Driver.elaborateModule(() => new SampleDUT()), () => new SampleDUT())
+  //new IOTestDUTTester(Chisel.Driver.elaborateModule(() => new IOTestDUT()), () => new IOTestDUT())
+
+  //failed tests
+  //new AccumulatorTests(Chisel.Driver.elaborateModule(() => new Accumulator()), () => new Accumulator())
+  new LFSR16Tests(Chisel.Driver.elaborateModule(() => new LFSR16()), () => new LFSR16())
 }

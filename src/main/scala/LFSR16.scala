@@ -1,4 +1,5 @@
 import Chisel._
+import Chisel.hwiotesters.AdvInterpretiveTester
 import firrtl.interpreter._
 
 class LFSR16 extends Module {
@@ -15,8 +16,7 @@ class LFSR16 extends Module {
 }
 
 class LFSR16Tests(c: () => LFSR16) {
-  val firrtlIR = Chisel.Driver.emit(c)
-  val x = new AdvInterpretiveTester(firrtlIR) {
+  val x = new AdvInterpretiveTester(c) {
     var res = 1
     val rnd = scala.util.Random
     for (t <- 0 until 16) {

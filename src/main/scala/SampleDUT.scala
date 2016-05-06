@@ -1,5 +1,6 @@
 import scala.collection.mutable.LinkedHashMap
 import Chisel._
+import Chisel.hwiotesters.AdvInterpretiveTester
 import firrtl.interpreter._
 
 class innerBundle extends Bundle {
@@ -44,36 +45,14 @@ class SampleDUT extends Module {
   io.delayed_out := delayed_in
 }
 
-class SampleDUTTester(c: () => SampleDUT) {
-  val firrtlIR = Chisel.Driver.emit(c)
-  val x = new AdvInterpretiveTester(firrtlIR) {
-    poke("io_in", 34)
-    println("DEBUG0")
-    println(firrtlIR)
-    println("DEBUG1")
-    //step(1)
-    update()
-    println(peek("io_out"))
-    println("DEBUG2")
-    update()
-    println(peek("io_out"))
-    println(peek("io_delayed_out"))
-    println("DEBUG3")
-    poke("io_in", 34)
-    step(1)
-    println(peek("io_out"))
-    println(peek("io_delayed_out"))
-    expect("io_out", 34)
-/*
-    poke("io_e", 0)
-    step(1)
-
-    while (peek("io_v") != Big1) {
-      step(1)
-    }
-    expect("io_z", 17)
-    */
-  }
+class SampleDUTTester(c: SampleDUT, dutGenFunc: () => SampleDUT) extends AdvInterpretiveTester(dutGenFunc) {
+  poke(c.io.in, 1)
+  expect(c.io.out, 1)
+  peek(c.io.delayed_out)
+  poke(c.io.in, 2)
+  step(1)
+  expect(c.io.out, 2)
+  expect(c.io.delayed_out, 2)
 }
 /*
 class SampleDUTTester(c: SampleDUT) extends ClassicTester(c) {

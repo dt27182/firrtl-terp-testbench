@@ -1,5 +1,5 @@
 import Chisel._
-import Chisel.hwiotesters.AdvInterpretiveTester
+import Chisel.iotesters._
 
 class Accumulator extends Module {
   val io = new Bundle {
@@ -10,8 +10,7 @@ class Accumulator extends Module {
   accumulator := accumulator + io.in
   io.out := accumulator
 }
-
-class AccumulatorTests(c: Accumulator, dutGenFunc: () => Accumulator) extends AdvInterpretiveTester(dutGenFunc) {
+class AccumulatorTests(c: Accumulator, b: Option[Backend] = None) extends ClassicTester(c, _backend = b) {
   var tot = 0
   for (t <- 0 until 16) {
     val in = rnd.nextInt(2)
@@ -19,5 +18,6 @@ class AccumulatorTests(c: Accumulator, dutGenFunc: () => Accumulator) extends Ad
     step(1)
     if (in == 1) tot += 1
     expect(c.io.out, tot)
+    //expect(c.io.out, 10)
   }
 }

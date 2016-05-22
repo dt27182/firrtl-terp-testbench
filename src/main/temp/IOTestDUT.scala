@@ -1,5 +1,5 @@
 import Chisel._
-import Chisel.hwiotesters.AdvInterpretiveTester
+import Chisel.iotesters.AdvInterpretiveTester
 
 class innerBundle extends Bundle {
   val c = UInt(INPUT, width=8)
